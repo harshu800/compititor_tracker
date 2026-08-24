@@ -1,0 +1,57 @@
+name: Scheduled competitor checks
+
+# Stands in for `celery beat` when the backend is deployed with
+# CELERY_TASK_ALWAYS_EAGER=true and no separate worker/beat process
+# running (see README "Free deployment" section). If you later switch to
+# real background workers, disable or delete this workflow — running both
+# would trigger checks twice.
+#
+# Setup:
+#   1. Repo Settings -> Secrets and variables -> Actions -> New repository secret
+#      - API_BASE_URL      e.g. https://your-api.onrender.com
+#      - CRON_TRIGGER_SECRET   same value as backend/.env's CRON_TRIGGER_SECRET
+#   2. That's it — this runs on GitHub's schedule, no server of your own required.
+
+on:
+  schedule:
+    # Every 15 minutes — matches the interval celery beat would normally use
+    # for check_all_due_pages. GitHub's cron scheduler is best-effort and can
+    # run a few minutes late under load; that's fine here since a page being
+    # checked slightly later than "due" has no correctness impact.
+    - cron: "*/15 * * * *"
+    # Mondays at 9:00 UTC — matches the weekly digest schedule.
+    - cron: "0 9 * * 1"
+  workflow_dispatch: {} # lets you trigger either job manually from the Actions tab
+
+jobs:
+  trigger-due-checks:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '*/15 * * * *' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Call trigger-due-checks
+        run: |
+          response=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            -X POST "${{ secrets.API_BASE_URL }}/api/v1/internal/trigger-due-checks" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_TRIGGER_SECRET }}")
+          echo "HTTP status: $response"
+          cat /tmp/response.json
+          if [ "$response" -ne 200 ]; then
+            echo "::error::trigger-due-checks failed with HTTP $response"
+            exit 1
+          fi
+
+  trigger-weekly-digest:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 9 * * 1' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Call trigger-weekly-digest
+        run: |
+          response=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            -X POST "${{ secrets.API_BASE_URL }}/api/v1/internal/trigger-weekly-digest" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_TRIGGER_SECRET }}")
+          echo "HTTP status: $response"
+          cat /tmp/response.json
+          if [ "$response" -ne 200 ]; then
+            echo "::error::trigger-weekly-digest failed with HTTP $response"
+            exit 1
+          fi

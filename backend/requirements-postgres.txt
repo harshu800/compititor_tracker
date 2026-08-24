@@ -1,0 +1,7 @@
+# Only needed if you switch DATABASE_URL to a postgresql:// connection
+# string — SQLite (the default) needs no extra driver at all.
+#
+#   pip install -r requirements.txt
+#   pip install -r requirements-postgres.txt   # only if using Postgres
+#
+psycopg2-binary==2.9.10

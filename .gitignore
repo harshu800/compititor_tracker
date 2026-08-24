@@ -1,0 +1,88 @@
+# Backend
+backend/venv/
+backend/.env
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.db
+backend/.pytest_cache/
+backend/*.egg-info/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/.env
+frontend/out/
+
+# General
+.DS_Store
+*.log
+# ========================
+# Backend
+# ========================
+
+# Python virtual environment
+backend/venv/
+backend/.venv/
+
+# Environment variables / secrets
+backend/.env
+backend/.env.*
+
+# Python cache
+backend/__pycache__/
+backend/**/__pycache__/
+*.py[cod]
+
+# Database
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+
+# Testing / Python
+backend/.pytest_cache/
+backend/*.egg-info/
+
+# ========================
+# Frontend
+# ========================
+
+# Node dependencies
+frontend/node_modules/
+
+# Next.js build files
+frontend/.next/
+frontend/out/
+
+# Environment variables / secrets
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Vercel
+frontend/.vercel/
+
+# ========================
+# General
+# ========================
+
+# Environment files anywhere
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+frontend/.env.local
+*.tsbuildinfo
