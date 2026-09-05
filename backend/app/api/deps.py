@@ -21,7 +21,9 @@ def enforce_competitor_limit(db: Session, ctx: AuthContext):
     org = db.query(Organization).filter(Organization.id == ctx.organization_id).first()
     limits = PLAN_LIMITS.get(org.plan, PLAN_LIMITS["free"])
     current = db.query(Competitor).filter(
-        Competitor.organization_id == ctx.organization_id, Competitor.status == "active"
+        Competitor.organization_id == ctx.organization_id,
+        Competitor.status == "active",
+        Competitor.is_demo == False,  # noqa: E712 — demo data never counts against a real plan limit
     ).count()
     if current >= limits["max_competitors"]:
         raise HTTPException(
@@ -36,7 +38,10 @@ def enforce_page_limit(db: Session, ctx: AuthContext, competitor_id: str):
     current = (
         db.query(MonitoredPage)
         .join(Competitor, MonitoredPage.competitor_id == Competitor.id)
-        .filter(Competitor.organization_id == ctx.organization_id)
+        .filter(
+            Competitor.organization_id == ctx.organization_id,
+            Competitor.is_demo == False,  # noqa: E712 — same exemption as above
+        )
         .count()
     )
     if current >= limits["max_pages"]:

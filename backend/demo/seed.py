@@ -65,7 +65,7 @@ def _hash(text: str) -> str:
 
 def seed_for_organization(db: Session, organization_id: str) -> dict:
     existing = db.query(Competitor).filter(
-        Competitor.organization_id == organization_id, Competitor.name.like("%(Demo)")
+        Competitor.organization_id == organization_id, Competitor.is_demo == True  # noqa: E712
     ).count()
     if existing:
         return {"competitors": existing, "note": "Demo data already seeded for this organization."}
@@ -80,6 +80,7 @@ def seed_for_organization(db: Session, organization_id: str) -> dict:
             organization_id=organization_id, name=comp_def["name"],
             website_url=comp_def["website_url"], industry=comp_def["industry"],
             description=f"Demo competitor in {comp_def['industry']}.",
+            is_demo=True,
         )
         db.add(competitor)
         db.flush()
